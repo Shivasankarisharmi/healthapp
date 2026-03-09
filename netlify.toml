@@ -1,9 +1,4 @@
-[build]
-  base = "health-app-frontend"
-  publish = "health-app-frontend/dist"
-  command = "npm run build"
-
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from   = "/*"
+  to     = "/index.html"
   status = 200
