@@ -1,14 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const dashboardRoutes = require("./routes/dashboardRoutes");
-const nutritionRoutes = require("./routes/nutritionRoutes");
-const goalRoutes = require("./routes/goalRoutes");
 require("dotenv").config();
 
-const authRoutes = require("./routes/authRoutes");
-const workoutRoutes = require("./routes/workoutRoutes");
-const userRoutes = require("./routes/userRoutes");
+const authRoutes      = require("./routes/authRoutes");
+const workoutRoutes   = require("./routes/workoutRoutes");
+const nutritionRoutes = require("./routes/nutritionRoutes");
+const goalRoutes      = require("./routes/goalRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const userRoutes      = require("./routes/userRoutes");
 
 const app = express();
 
@@ -17,40 +17,43 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://healthapppro.netlify.app",
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
+  process.env.FRONTEND_URL,          
+].filter(Boolean);
 
 
-app.options("*", cors());
+app.options("*", (req, res) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(204);
+});
 
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  }
+  next();
+});
 
 app.use(express.json({ limit: "10mb" }));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/workouts", workoutRoutes);
+app.use("/api/auth",      authRoutes);
+app.use("/api/workouts",  workoutRoutes);
 app.use("/api/nutrition", nutritionRoutes);
-app.use("/api/goals", goalRoutes);
+app.use("/api/goals",     goalRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/user", userRoutes);
+app.use("/api/user",      userRoutes);
 
-
-app.get("/", (req, res) => {
-  res.send("HealthPro API is running ✅");
-});
-
+app.get("/", (req, res) => res.send("HealthPro API is running ✅"));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✅"))

@@ -10,7 +10,6 @@ const {
   deleteAccount,
 } = require("../controllers/userController");
 
-
 router.get("/profile", protect, getProfile);
 router.put("/profile", protect, updateProfile);
 router.put("/profile/password", protect, changePassword);
