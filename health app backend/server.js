@@ -12,7 +12,6 @@ const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
-app.use(cors());
 app.use(express.json({ limit: "10mb" })); 
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -32,3 +31,11 @@ mongoose
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://healthapppro.netlify.app"
+  ],
+  credentials: true,
+}));
